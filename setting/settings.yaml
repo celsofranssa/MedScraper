@@ -1,0 +1,5 @@
+crawler_process:
+  FEEDS:
+    items:
+      json:
+        format: json
