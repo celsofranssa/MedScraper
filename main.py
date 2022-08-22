@@ -8,23 +8,29 @@ from scrapy.crawler import CrawlerProcess
 from source.spider.DoctoraliaSpider import DoctoraliaSpider
 
 
-class MySpider(scrapy.Spider):
-    # Your spider definition
-    ...
+def scrape():
+    settings = {
+        "USER_AGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
+        "HTTPCACHE_ENABLED": True,
+        "ROBOTSTXT_OBEY": False,
+        "LOG_LEVEL": 'INFO',
+        "EXTENSIONS": {
+            'scrapy.telnet.TelnetConsole': None
+        },
+        "DOWNLOAD_TIMEOUT": 30,
+        "CONCURRENT_REQUESTS": 4,
+        "FEEDS": {
+            "/mnt/ark/projects/MedScraper/resource/data/r.jsonl": {"format": "jsonlines", 'encoding': 'utf8'},
+        }
+    }
 
-
-@hydra.main(config_path="setting", config_name="settings.yaml", version_base=None)
-def perform_tasks(settings):
-    os.chdir(hydra.utils.get_original_cwd())
-    OmegaConf.resolve(settings)
-    process = CrawlerProcess(settings=settings)
-
-    spider = DoctoraliaSpider(settings)
-
-    process.crawl(spider)
-    # the script will block here until the crawling is finished
+    process = CrawlerProcess(settings=settings)  # settings=settings.crawler_process)
+    process.crawl(DoctoraliaSpider)
+    # # the script will block here until the crawling is finished
     process.start()
 
 
+
+
 if __name__ == '__main__':
-    perform_tasks()
+    scrape()

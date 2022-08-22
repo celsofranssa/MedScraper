@@ -1,28 +1,41 @@
 import scrapy
-
 from source.item.QstAnsItem import QstAnsItem
 
 
 class DoctoraliaSpider(scrapy.Spider):
 
-
-    def __init__(self, params):
+    def __init__(self):
+        self.start_urls = ["https://www.doctoralia.com.br/doencas/diabetes/perguntas/114"]
+        self.name = "doctor_robot"
         super(DoctoraliaSpider, self).__init__()
-        self.start_url = params.start_url
 
-    def parse_item(self, response):
-        pass
-        # self.logger.info('Hi, this is an item page! %s', response.url)
-        # item = QstAnsItem()
-        # item['qst'] = #response.xpath('//td[@id="item_description"]/text()').get()
-        # item['ans'] =  # response.xpath('//td[@id="item_description"]/text()').get()
-        # item['id'] = response.xpath('//td[@id="item_id"]/text()').re(r'ID: (\d+)')
-        # item['name'] = response.xpath('//td[@id="item_name"]/text()').get()
-        # item['description'] = response.xpath('//td[@id="item_description"]/text()').get()
-        # item['link_text'] = response.meta['link_text']
-        # url = response.xpath('//td[@id="additional_data"]/@href').get()
-        # return response.follow(url, self.parse_additional_page, cb_kwargs=dict(item=item))
+    def parse(self, response):
+        num_qst = 0
+        for qst_page in response.xpath("//div[@class='dp-q-and-a']//a[@class='text-body']/@href").getall():
+            num_qst += 1
+            yield response.follow(qst_page, self.parse_qst)
+        self.logger.info(f"Got {num_qst} questions from {response.url}")
 
-    def parse_additional_page(self, response, item):
-        item['additional_data'] = response.xpath('//p[@id="additional_data"]/text()').get()
-        return item
+        next_page = response.xpath("//a[contains(@class,'page-link-next')]/@href").get()
+        if next_page is not None:
+            self.logger.info(f"Creating request {next_page}")
+            yield response.follow(next_page, self.parse, errback=self._errback)
+
+    def parse_qst(self, qst):
+
+        item = QstAnsItem()
+        a = qst.xpath("//div[contains(@class,'doctor-question-body')]/text()").extract()
+        item['qst'] = " ".join(a).strip()
+
+        answers = []
+        for ans in qst.xpath("//div[contains(@class,'doctor-answer-content')]"):
+            ans = "".join(ans.xpath(".//text()").extract())
+
+            answers.append(ans.strip().replace("\n", " "))
+        item['ans'] = answers
+
+        yield item
+
+    def _errback(self):
+        self.logger.info(f"ERROR")
+

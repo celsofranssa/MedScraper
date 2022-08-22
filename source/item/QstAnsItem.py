@@ -1,9 +1,6 @@
-import scrapy
+from scrapy import Field, Item
 
 
-class QstAnsItem(scrapy.Item):
-
-    def __init__(self):
-        super(QstAnsItem, self).__init__()
-        self.qst = scrapy.Field()
-        self.ans = scrapy.Field()
+class QstAnsItem(Item):
+    qst = Field()
+    ans = Field()

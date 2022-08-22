@@ -1,5 +1,21 @@
+defaults:
+  - _self_
+  - disease: DIABETES
+  - spider: DOCTORALIA
+
+tasks: [ "scrape" ]
+
 crawler_process:
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML,
+    like Gecko) Chrome/83.0.4103.97 Safari/537.36
+  HTTPCACHE_ENABLED: true
+  ROBOTSTXT_OBEY: false
+  LOG_LEVEL: INFO
+  EXTENSIONS:
+    scrapy.telnet.TelnetConsole: None
+  DOWNLOAD_TIMEOUT: 30
+  CONCURRENT_REQUESTS: 128
   FEEDS:
-    items:
-      json:
-        format: json
+    resource/data/data.jsonl:
+      format: jsonlines
+      encoding: utf8
