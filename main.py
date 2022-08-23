@@ -8,7 +8,7 @@ from scrapy.crawler import CrawlerProcess
 from source.spider.DoctoraliaSpider import DoctoraliaSpider
 
 
-def scrape():
+def scrape(disease, start_urls):
     settings = {
         "USER_AGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
         "HTTPCACHE_ENABLED": True,
@@ -20,12 +20,12 @@ def scrape():
         "DOWNLOAD_TIMEOUT": 30,
         "CONCURRENT_REQUESTS": 4,
         "FEEDS": {
-            "/mnt/ark/projects/MedScraper/resource/data/r.jsonl": {"format": "jsonlines", 'encoding': 'utf8'},
+            f"resource/data/{disease}.jsonl": {"format": "jsonlines", 'encoding': 'utf8'},
         }
     }
 
     process = CrawlerProcess(settings=settings)  # settings=settings.crawler_process)
-    process.crawl(DoctoraliaSpider)
+    process.crawl(DoctoraliaSpider, start_urls)
     # # the script will block here until the crawling is finished
     process.start()
 
@@ -33,4 +33,6 @@ def scrape():
 
 
 if __name__ == '__main__':
-    scrape()
+    start_urls = ["https://www.doctoralia.com.br/doencas/diabetes/perguntas"]
+    disease = "diabetes"
+    scrape(disease, start_urls)

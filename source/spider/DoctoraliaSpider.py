@@ -4,9 +4,9 @@ from source.item.QstAnsItem import QstAnsItem
 
 class DoctoraliaSpider(scrapy.Spider):
 
-    def __init__(self):
-        self.start_urls = ["https://www.doctoralia.com.br/doencas/diabetes/perguntas/114"]
-        self.name = "doctor_robot"
+    def __init__(self, start_urls):
+        self.start_urls = start_urls
+        self.name = "Doctor_Spider"
         super(DoctoraliaSpider, self).__init__()
 
     def parse(self, response):
@@ -25,14 +25,14 @@ class DoctoraliaSpider(scrapy.Spider):
 
         item = QstAnsItem()
         a = qst.xpath("//div[contains(@class,'doctor-question-body')]/text()").extract()
-        item['qst'] = " ".join(a).strip()
+        item['question'] = " ".join(a).strip()
 
         answers = []
         for ans in qst.xpath("//div[contains(@class,'doctor-answer-content')]"):
             ans = "".join(ans.xpath(".//text()").extract())
 
             answers.append(ans.strip().replace("\n", " "))
-        item['ans'] = answers
+        item['answers'] = answers
 
         yield item
 
